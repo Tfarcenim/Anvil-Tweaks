@@ -1,7 +1,6 @@
 package com.tfar.anviltweaks;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.tfar.anviltweaks.util.ItemRendererv2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
