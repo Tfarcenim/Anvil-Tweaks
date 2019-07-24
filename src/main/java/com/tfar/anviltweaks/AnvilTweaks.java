@@ -52,7 +52,7 @@ public class AnvilTweaks
 
   private void doClientStuff(final FMLClientSetupEvent event) {
     ScreenManager.registerFactory(Stuff.anvil_container_v2, AnvilScreenv2::new);
-    ClientRegistry.bindTileEntitySpecialRenderer(AnvilTile.class, new AnvilTileSpecialRenderer<>());
+    ClientRegistry.bindTileEntitySpecialRenderer(AnvilTile.class, new AnvilTileSpecialRenderer());
 
   }
 

@@ -10,41 +10,35 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.ForgeHooksClient;
 
 import java.util.List;
-import java.util.Random;
 
-public class AnvilTileSpecialRenderer<T extends TileEntity> extends TileEntityRenderer<T> {
+public class AnvilTileSpecialRenderer extends TileEntityRenderer<AnvilTile> {
 
   private static ItemEntity customItem;
 
-  private Random random = new Random();
-
   private ItemRenderer itemRenderer;
 
-  private static float[][] shifts = {{0.3F, 0.45F, 0.5F}, {0.7F, 0.45F, 0.5F}, {0.5F, 0.45F, 0.3F}, {0.5F, 0.45F, 0.7F}};
+  private static float[][] shifts = {{0.25F, 0.45F, 0.5F}, {0.75F, 0.45F, 0.5F}, {0.5F, 0.45F, 0.25F}, {0.5F, 0.45F, 0.75F}};
 
 
   @Override
-  public void render(T tileEntity, double x, double y, double z, float partialTicks, int destroyStage) {
+  public void render(AnvilTile tileEntity, double x, double y, double z, float partialTicks, int destroyStage) {
     GlStateManager.enableDepthTest();
     GlStateManager.depthFunc(515);
     GlStateManager.depthMask(true);
 
-    AnvilTile anvilTile = (AnvilTile) tileEntity;
-
     if (this.rendererDispatcher.renderInfo != null) {
-      if (anvilTile.getDistanceSq(this.rendererDispatcher.renderInfo.getProjectedView().x, this.rendererDispatcher.renderInfo.getProjectedView().y, this.rendererDispatcher.renderInfo.getProjectedView().z) < 128d) {
+      if (tileEntity.getDistanceSq(this.rendererDispatcher.renderInfo.getProjectedView().x, this.rendererDispatcher.renderInfo.getProjectedView().y, this.rendererDispatcher.renderInfo.getProjectedView().z) < 128d) {
       //  this.random.setSeed(254L);
         float shiftX;
         float shiftY;
         float shiftZ;
         int shift = 0;
         boolean northSouth = false;
-        Direction dir = anvilTile.getBlockState().get(AnvilBlockv2.FACING);
+        Direction dir = tileEntity.getBlockState().get(AnvilBlockv2.FACING);
         if (dir == Direction.NORTH || dir == Direction.SOUTH) {
           shift += 2;
           northSouth = true;
@@ -58,7 +52,7 @@ public class AnvilTileSpecialRenderer<T extends TileEntity> extends TileEntityRe
           customItem = new ItemEntity(EntityType.ITEM, this.getWorld());
         }
 
-        List<ItemStack> contents = anvilTile.handler.getContents();
+        List<ItemStack> contents = tileEntity.handler.getContents();
         for (int i = 0, contentsSize = contents.size(); i < contentsSize; i++) {
           ItemStack item = contents.get(i);
 
@@ -69,10 +63,9 @@ public class AnvilTileSpecialRenderer<T extends TileEntity> extends TileEntityRe
           shift++;
           GlStateManager.pushMatrix();
           GlStateManager.translatef(shiftX, shiftY, shiftZ);
-          GlStateManager.translatef(0, 0, -.1f);
-          GlStateManager.translatef(0, item.getItem() instanceof BlockItem ? .6f : .575f, 0);
+          GlStateManager.translatef(0,  item.getItem() instanceof BlockItem ? .6f : .575f, -.125f);
           GlStateManager.rotatef(90, 1, 0, 0);
-          GlStateManager.rotatef(((AnvilTile) tileEntity).angles[i], 0, 0, 1);
+          GlStateManager.rotatef(tileEntity.angles[i], 0, 0, 1);
 
           //   GlStateManager.rotatef(0, .5, 0, 0);
           GlStateManager.scalef(blockScale, blockScale, blockScale);
