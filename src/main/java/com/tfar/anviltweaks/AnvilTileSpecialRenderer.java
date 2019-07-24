@@ -36,7 +36,7 @@ public class AnvilTileSpecialRenderer<T extends TileEntity> extends TileEntityRe
 
     if (this.rendererDispatcher.renderInfo != null) {
       if (anvilTile.getDistanceSq(this.rendererDispatcher.renderInfo.getProjectedView().x, this.rendererDispatcher.renderInfo.getProjectedView().y, this.rendererDispatcher.renderInfo.getProjectedView().z) < 128d) {
-        this.random.setSeed(254L);
+      //  this.random.setSeed(254L);
         float shiftX;
         float shiftY;
         float shiftZ;
