@@ -27,7 +27,6 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
-import java.util.Random;
 
 public class RepairContainerv2 extends Container {
 
@@ -55,14 +54,14 @@ public class RepairContainerv2 extends Container {
       public void onSlotChanged() {
         if (this.getStack().isEmpty())repairedItemName = "";
         updateRepairOutput();
-        tileEntity.angles[0] = tileEntity.rand.nextInt(360);
+        tileEntity.angles[0] = tileEntity.rand.nextInt(4);
       }
     });
     this.addSlot(new SlotItemHandler(tileEntity.handler, 1, 76, 47){
       @Override
       public void onSlotChanged() {
         updateRepairOutput();
-        tileEntity.angles[1] = tileEntity.rand.nextInt(360);
+        tileEntity.angles[1] = tileEntity.rand.nextInt(4);
       }
     });
     this.addSlot(new Slot(this.outputSlot, 2, 134, 47) {
