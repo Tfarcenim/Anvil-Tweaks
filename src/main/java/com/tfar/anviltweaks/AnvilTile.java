@@ -14,11 +14,14 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Random;
 
 public class AnvilTile extends TileEntity implements INamedContainerProvider {
 
   public AnvilHandler handler;
   public String savedName = "";
+  public final Random rand = new Random();
+  public int[] angles = {0,0};
 
   public AnvilTile(TileEntityType<?> tileEntityType) {
     super(tileEntityType);
