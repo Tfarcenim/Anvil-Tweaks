@@ -39,21 +39,10 @@ public class AnvilTweaks
   public AnvilTweaks() {
     // Register the setup method for modloading
     FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-    // Register the doClientStuff method for modloading
-    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-
-    // Register ourselves for server and other game events we are interested in
-    MinecraftForge.EVENT_BUS.register(this);
   }
 
   private void setup(final FMLCommonSetupEvent event) {
     Message.registerMessages(AnvilTweaks.MODID);
-  }
-
-  private void doClientStuff(final FMLClientSetupEvent event) {
-    ScreenManager.registerFactory(Stuff.anvil_container_v2, AnvilScreenv2::new);
-    ClientRegistry.bindTileEntitySpecialRenderer(AnvilTile.class, new AnvilTileSpecialRenderer());
-
   }
 
   // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
