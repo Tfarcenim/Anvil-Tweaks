@@ -69,7 +69,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     GlStateManager.disableLighting();
     GlStateManager.disableBlend();
 
-    this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 4210752);
+    this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 0x404040);
     int lvt_3_1_ = this.container.func_216976_f();
     if (!container.repairedItemName.equals(this.nameField.getText()) && !nameField.getText().isEmpty()){
       this.container.updateItemName(this.nameField.getText());
@@ -80,7 +80,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       int lvt_4_1_ = 8453920;
       boolean lvt_5_1_ = true;
       String lvt_6_1_ = I18n.format("container.repair.cost", lvt_3_1_);
-      if (lvt_3_1_ >= 40 && !this.minecraft.player.abilities.isCreativeMode) {
+      if (lvt_3_1_ >= Configs.ServerConfig.repair_cost_cap.get() && !this.minecraft.player.abilities.isCreativeMode) {
         lvt_6_1_ = I18n.format("container.repair.expensive");
         lvt_4_1_ = 16736352;
       } else if (!this.container.getSlot(2).getHasStack()) {
@@ -91,7 +91,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
 
       if (lvt_5_1_) {
         int lvt_7_1_ = this.xSize - 8 - this.font.getStringWidth(lvt_6_1_) - 2;
-        fill(lvt_7_1_ - 2, 67, this.xSize - 8, 79, 1325400064);
+        fill(lvt_7_1_ - 2, 67, this.xSize - 8, 79, 0x4f000000);
         this.font.drawStringWithShadow(lvt_6_1_, (float)lvt_7_1_, 69.0F, lvt_4_1_);
       }
     }
@@ -145,9 +145,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       this.nameField.setEnabled(!toRename.isEmpty());
 
       this.container.updateItemName(s);
-   //   Message.INSTANCE.sendToServer(new PacketAnvilRename(s));
     }
-
   }
 
   public void sendWindowProperty(Container p_71112_1_, int p_71112_2_, int p_71112_3_) {

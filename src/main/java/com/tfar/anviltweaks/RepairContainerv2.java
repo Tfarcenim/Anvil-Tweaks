@@ -156,18 +156,18 @@ public class RepairContainerv2 extends Container {
       this.outputSlot.setInventorySlotContents(0, ItemStack.EMPTY);
       this.maximumCost.set(0);
     } else {
-      ItemStack itemstack1 = itemstack.copy();
-      ItemStack itemstack2 = tileEntity.handler.getStackInSlot(1);
-      Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(itemstack1);
-      j = j + itemstack.getRepairCost() + (itemstack2.isEmpty() ? 0 : itemstack2.getRepairCost());
+      ItemStack stack = itemstack.copy();
+      ItemStack stack2 = tileEntity.handler.getStackInSlot(1);
+      Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(stack);
+      j = j + getRepairCost(itemstack) + (stack2.isEmpty() ? 0 : getRepairCost(stack2));
       this.materialCost = 0;
       boolean flag = false;
 
-      if (!itemstack2.isEmpty()) {
-        if (!onAnvilChange(this, itemstack, itemstack2, outputSlot, this.repairedItemName, j)) return;
-        flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !EnchantedBookItem.getEnchantments(itemstack2).isEmpty();
-        if (itemstack1.isDamageable() && itemstack1.getItem().getIsRepairable(itemstack, itemstack2)) {
-          int l2 = Math.min(itemstack1.getDamage(), itemstack1.getMaxDamage() / 4);
+      if (!stack2.isEmpty()) {
+        if (!onAnvilChange(this, itemstack, stack2, outputSlot, this.repairedItemName, j)) return;
+        flag = stack2.getItem() == Items.ENCHANTED_BOOK && !EnchantedBookItem.getEnchantments(stack2).isEmpty();
+        if (stack.isDamageable() && stack.getItem().getIsRepairable(itemstack, stack2)) {
+          int l2 = Math.min(stack.getDamage(), stack.getMaxDamage() / 4);
           if (l2 <= 0) {
             this.outputSlot.setInventorySlotContents(0, ItemStack.EMPTY);
             this.maximumCost.set(0);
@@ -175,38 +175,38 @@ public class RepairContainerv2 extends Container {
           }
 
           int i3;
-          for (i3 = 0; l2 > 0 && i3 < itemstack2.getCount(); ++i3) {
-            int j3 = itemstack1.getDamage() - l2;
-            itemstack1.setDamage(j3);
+          for (i3 = 0; l2 > 0 && i3 < stack2.getCount(); ++i3) {
+            int j3 = stack.getDamage() - l2;
+            stack.setDamage(j3);
             ++i;
-            l2 = Math.min(itemstack1.getDamage(), itemstack1.getMaxDamage() / 4);
+            l2 = Math.min(stack.getDamage(), stack.getMaxDamage() / 4);
           }
 
           this.materialCost = i3;
         } else {
-          if (!flag && (itemstack1.getItem() != itemstack2.getItem() || !itemstack1.isDamageable())) {
+          if (!flag && (stack.getItem() != stack2.getItem() || !stack.isDamageable())) {
             this.outputSlot.setInventorySlotContents(0, ItemStack.EMPTY);
             this.maximumCost.set(0);
             return;
           }
 
-          if (itemstack1.isDamageable() && !flag) {
+          if (stack.isDamageable() && !flag) {
             int l = itemstack.getMaxDamage() - itemstack.getDamage();
-            int i1 = itemstack2.getMaxDamage() - itemstack2.getDamage();
-            int j1 = i1 + itemstack1.getMaxDamage() * 12 / 100;
+            int i1 = stack2.getMaxDamage() - stack2.getDamage();
+            int j1 = i1 + stack.getMaxDamage() * 12 / 100;
             int k1 = l + j1;
-            int l1 = itemstack1.getMaxDamage() - k1;
+            int l1 = stack.getMaxDamage() - k1;
             if (l1 < 0) {
               l1 = 0;
             }
 
-            if (l1 < itemstack1.getDamage()) {
-              itemstack1.setDamage(l1);
+            if (l1 < stack.getDamage()) {
+              stack.setDamage(l1);
               i += 2;
             }
           }
 
-          Map<Enchantment, Integer> map1 = EnchantmentHelper.getEnchantments(itemstack2);
+          Map<Enchantment, Integer> map1 = EnchantmentHelper.getEnchantments(stack2);
           boolean flag2 = false;
           boolean flag3 = false;
 
@@ -257,7 +257,7 @@ public class RepairContainerv2 extends Container {
 
                 i += k3 * j2;
                 if (itemstack.getCount() > 1) {
-                  i = 40;
+                  i = Configs.ServerConfig.repair_cost_cap.get();
                 }
               }
             }
@@ -275,45 +275,50 @@ public class RepairContainerv2 extends Container {
         if (itemstack.hasDisplayName()) {
           k = 1;
           i += k;
-          itemstack1.clearCustomName();
+          stack.clearCustomName();
         }
       } else if (!this.repairedItemName.equals(itemstack.getDisplayName().getString())) {
         k = 1;
         i += k;
-        itemstack1.setDisplayName(new StringTextComponent(this.repairedItemName));
+        stack.setDisplayName(new StringTextComponent(this.repairedItemName));
       }
-      if (flag && !itemstack1.isBookEnchantable(itemstack2)) itemstack1 = ItemStack.EMPTY;
+      if (flag && !stack.isBookEnchantable(stack2)) stack = ItemStack.EMPTY;
 
       this.maximumCost.set(j + i);
       if (i <= 0) {
-        itemstack1 = ItemStack.EMPTY;
+        stack = ItemStack.EMPTY;
       }
 
-      if (k == i && k > 0 && this.maximumCost.get() >= 40) {
-        this.maximumCost.set(39);
+      if (k == i && k > 0 && this.maximumCost.get() >= Configs.ServerConfig.repair_cost_cap.get()) {
+        this.maximumCost.set(Configs.ServerConfig.repair_cost_cap.get() - 1);
       }
 
-      if (this.maximumCost.get() >= 40 && !this.player.abilities.isCreativeMode) {
-        itemstack1 = ItemStack.EMPTY;
+      if (this.maximumCost.get() >= Configs.ServerConfig.repair_cost_cap.get() && !this.player.abilities.isCreativeMode) {
+        stack = ItemStack.EMPTY;
       }
 
-      if (!itemstack1.isEmpty()) {
-        int k2 = itemstack1.getRepairCost();
-        if (!itemstack2.isEmpty() && k2 < itemstack2.getRepairCost()) {
-          k2 = itemstack2.getRepairCost();
+      if (!stack.isEmpty()) {
+        int k2 = getRepairCost(stack);
+        if (!stack2.isEmpty() && k2 < getRepairCost(stack2)) {
+          k2 = getRepairCost(stack2);
         }
 
         if (k != i || k == 0) {
           k2 = func_216977_d(k2);
         }
 
-        itemstack1.setRepairCost(k2);
-        EnchantmentHelper.setEnchantments(map, itemstack1);
+        if (Configs.ServerConfig.prior_work_penalty.get())
+        stack.setRepairCost(k2);
+        EnchantmentHelper.setEnchantments(map, stack);
       }
 
-      this.outputSlot.setInventorySlotContents(0, itemstack1);
+      this.outputSlot.setInventorySlotContents(0, stack);
       this.detectAndSendChanges();
     }
+  }
+
+  public static int getRepairCost(ItemStack stack){
+    return Configs.ServerConfig.prior_work_penalty.get() ? stack.getRepairCost() : 0;
   }
 
   public static int func_216977_d(int p_216977_0_) {

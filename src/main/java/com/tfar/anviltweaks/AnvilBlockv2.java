@@ -21,6 +21,8 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static net.minecraft.tags.BlockTags.ANVIL;
+
 public class AnvilBlockv2 extends AnvilBlock {
   public AnvilBlockv2(Properties p_i48450_1_) {
     super(p_i48450_1_);
@@ -67,11 +69,11 @@ public class AnvilBlockv2 extends AnvilBlock {
 
   @Override
   public void onReplaced(BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
-    if (state.getBlock() != newState.getBlock()) {
+    if (!state.getBlock().isIn(ANVIL)) {
       TileEntity tileentity = worldIn.getTileEntity(pos);
       if (tileentity instanceof AnvilTile) {
         dropItems((AnvilTile) tileentity,worldIn, pos);
-        worldIn.updateComparatorOutputLevel(pos, this);
+       // worldIn.updateComparatorOutputLevel(pos, this);
       }
       super.onReplaced(state, worldIn, pos, newState, isMoving);
     }
@@ -81,7 +83,6 @@ public class AnvilBlockv2 extends AnvilBlock {
 
     for (int i = 0; i < barrel.handler.getSlots(); ++i) {
       ItemStack stack = barrel.handler.getStackInSlot(i);
-
       if (!stack.isEmpty()) {
         InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
       }
