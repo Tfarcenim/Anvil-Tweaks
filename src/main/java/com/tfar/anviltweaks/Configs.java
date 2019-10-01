@@ -18,6 +18,9 @@ public class Configs {
 
     public static ForgeConfigSpec.IntValue repair_cost_cap;
     public static ForgeConfigSpec.BooleanValue prior_work_penalty;
+    public static ForgeConfigSpec.BooleanValue damageable;
+    public static ForgeConfigSpec.DoubleValue damage_chance;
+    public static ForgeConfigSpec.BooleanValue cheap_renaming;
 
     ServerConfig(ForgeConfigSpec.Builder builder) {
 
@@ -30,6 +33,18 @@ public class Configs {
               .comment("Prior Work Penalty")
               .translation("text.anviltweaks.config.prior_work_penalty")
               .define("prior_work_penalty",true);
+      damageable = builder
+              .comment("Does anvil take damage")
+              .translation("text.anviltweaks.config.damageable")
+              .define("damageable",true);
+      damage_chance = builder
+              .comment("Damage chance")
+              .translation("text.anviltweaks.config.damage_chance")
+              .defineInRange("damage_chance",.12,0,1);
+      cheap_renaming = builder
+              .comment("Anvil renaming always costs 1 level")
+              .translation("text.anviltweaks.config.cheap_renaming")
+              .define("cheap_renaming",false);
       builder.pop();
     }
   }

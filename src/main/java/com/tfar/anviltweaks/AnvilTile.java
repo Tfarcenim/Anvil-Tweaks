@@ -6,6 +6,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.ITextComponent;
@@ -18,7 +20,7 @@ import java.util.Random;
 public class AnvilTile extends TileEntity implements INamedContainerProvider {
 
   public AnvilHandler handler;
-  public String savedName = "";
+
   public final Random rand = new Random();
   public int[] angles = {0,0};
 
@@ -32,8 +34,6 @@ public class AnvilTile extends TileEntity implements INamedContainerProvider {
   public CompoundNBT write(CompoundNBT tag) {
     CompoundNBT compound = this.handler.serializeNBT();
     tag.put("inv", compound);
-    if (savedName == null) savedName = "";
-    tag.putString("savedName", savedName);
     return super.write(tag);
   }
 
@@ -41,7 +41,6 @@ public class AnvilTile extends TileEntity implements INamedContainerProvider {
   public void read(CompoundNBT tag) {
     CompoundNBT invTag = tag.getCompound("inv");
     handler.deserializeNBT(invTag);
-    savedName = tag.getString("savedName");
     super.read(tag);
   }
 
@@ -59,5 +58,26 @@ public class AnvilTile extends TileEntity implements INamedContainerProvider {
   @Override
   public void markDirty() {
     super.markDirty();
+  }
+
+  @Override
+  public CompoundNBT getUpdateTag()
+  {
+    return write(new CompoundNBT());    // okay to send entire inventory on chunk load
+  }
+
+  @Override
+  public SUpdateTileEntityPacket getUpdatePacket()
+  {
+    CompoundNBT nbt = new CompoundNBT();
+    this.write(nbt);
+
+    return new SUpdateTileEntityPacket(getPos(), 1, nbt);
+  }
+
+  @Override
+  public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
+  {
+    this.read(packet.getNbtCompound());
   }
 }

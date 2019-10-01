@@ -2,6 +2,7 @@ package com.tfar.anviltweaks;
 
 import com.tfar.anviltweaks.network.Message;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
@@ -14,12 +15,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.ObjectHolder;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -46,46 +49,42 @@ public class AnvilTweaks
   public static class RegistryEvents {
     @SubscribeEvent
     public static void onBlocksRegistry(final RegistryEvent.Register<Block> event) {
+      if (ModList.get().isLoaded("apothesis"))return;
       Block.Properties anvil = Block.Properties.create(Material.ANVIL, MaterialColor.IRON)
               .hardnessAndResistance(5.0F, 1200.0F).sound(SoundType.ANVIL);
-      registerBlock(new AnvilBlockv2(anvil),"anvil",event.getRegistry());
-      registerBlock(new AnvilBlockv2(anvil),"chipped_anvil",event.getRegistry());
-      registerBlock(new AnvilBlockv2(anvil),"damaged_anvil",event.getRegistry());
+      registerItemBlock(new AnvilBlockv2(anvil),"anvil",event.getRegistry());
+      registerItemBlock(new AnvilBlockv2(anvil),"chipped_anvil",event.getRegistry());
+      registerItemBlock(new AnvilBlockv2(anvil),"damaged_anvil",event.getRegistry());
     }
 
     @SubscribeEvent
     public static void registerItems(final RegistryEvent.Register<Item> event) {
-      registerItem(new BlockItem(Anvils.anvil,new Item.Properties().group(ItemGroup.DECORATIONS)), Anvils.anvil.getRegistryName().toString()
+      if (ModList.get().isLoaded("apothesis"))return;
+      registerItemBlock(new BlockItem(Blocks.ANVIL,new Item.Properties().group(ItemGroup.DECORATIONS)), Blocks.ANVIL.getRegistryName().toString()
               ,event.getRegistry());
-      registerItem(new BlockItem(Anvils.chipped_anvil,new Item.Properties().group(ItemGroup.DECORATIONS)), Anvils.chipped_anvil.getRegistryName().toString()
+      registerItemBlock(new BlockItem(Blocks.CHIPPED_ANVIL,new Item.Properties().group(ItemGroup.DECORATIONS)), Blocks.CHIPPED_ANVIL.getRegistryName().toString()
               ,event.getRegistry());
-      registerItem(new BlockItem(Anvils.damaged_anvil,new Item.Properties().group(ItemGroup.DECORATIONS)), Anvils.damaged_anvil.getRegistryName().toString()
+      registerItemBlock(new BlockItem(Blocks.DAMAGED_ANVIL,new Item.Properties().group(ItemGroup.DECORATIONS)), Blocks.DAMAGED_ANVIL.getRegistryName().toString()
               ,event.getRegistry());
     }
 
     @SubscribeEvent
     public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
-      event.getRegistry().register(TileEntityType.Builder.create(() -> new AnvilTile(Stuff.anvil_tile), Anvils.anvil, Anvils.chipped_anvil, Anvils.damaged_anvil).build(null).setRegistryName("anvil_tile"));
+      registerObject(TileEntityType.Builder.create(() -> new AnvilTile(Stuff.anvil_tile), Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL).build(null),"anvil_tile",event.getRegistry());
     }
 
     @SubscribeEvent
     public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-      event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> new RepairContainerv2(windowId, inv.player.world, data.readBlockPos(), inv, inv.player)).setRegistryName("anvil_container_v2"));
+      registerObject(IForgeContainerType.create((windowId, inv, data) -> new RepairContainerv2(windowId, inv.player.world, data.readBlockPos(), inv, inv.player)),"anvil_container_v2",event.getRegistry());
     }
 
-    private static void registerItem(Item item, String name, IForgeRegistry<Item> registry) {
-      registry.register(item.setRegistryName(new ResourceLocation(name)));
+    private static <T extends IForgeRegistryEntry<T>> void registerItemBlock(T obj, String name, IForgeRegistry<T> registry) {
+      registry.register(obj.setRegistryName(new ResourceLocation(name)));
     }
-    private static void registerBlock(Block block, String name, IForgeRegistry<Block> registry) {
-      registry.register(block.setRegistryName(new ResourceLocation(name)));
-    }
-  }
-  @ObjectHolder("minecraft")
-  public static class Anvils {
 
-    public static final Block anvil = null;
-    public static final Block chipped_anvil = null;
-    public static final Block damaged_anvil = null;
+    private static <T extends IForgeRegistryEntry<T>> void registerObject(T obj, String name, IForgeRegistry<T> registry) {
+      registry.register(obj.setRegistryName(new ResourceLocation(MODID, name)));
+    }
   }
 
   @ObjectHolder(MODID)

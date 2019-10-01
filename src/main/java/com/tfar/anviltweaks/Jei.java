@@ -9,14 +9,13 @@ import net.minecraft.util.ResourceLocation;
 @JeiPlugin
 public class Jei implements IModPlugin {
 
-    @Override
-    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-      registration.addRecipeTransferHandler(RepairContainerv2.class, VanillaRecipeCategoryUid.ANVIL, 1, 9, 10, 36);
-    }
-
-    @Override
-    public ResourceLocation getPluginUid() {
-      return new ResourceLocation(AnvilTweaks.MODID, AnvilTweaks.MODID);
-    }
-
+  @Override
+  public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+    registration.addRecipeTransferHandler(RepairContainerv2.class, VanillaRecipeCategoryUid.ANVIL, 1, 9, 10, 36);
   }
+
+  @Override
+  public ResourceLocation getPluginUid() {
+    return new ResourceLocation(AnvilTweaks.MODID, AnvilTweaks.MODID);
+  }
+}

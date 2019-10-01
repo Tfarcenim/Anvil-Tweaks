@@ -17,8 +17,6 @@ import net.minecraft.util.IntReferenceHolder;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.items.IItemHandler;
@@ -27,6 +25,8 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+
+import static com.tfar.anviltweaks.Configs.ServerConfig.*;
 
 public class RepairContainerv2 extends Container {
 
@@ -68,6 +68,7 @@ public class RepairContainerv2 extends Container {
       /**
        * Check if the stack is allowed to be placed in this slot, used for armor slots as well as furnace fuel.
        */
+      @Override
       public boolean isItemValid(ItemStack stack) {
         return false;
       }
@@ -75,16 +76,20 @@ public class RepairContainerv2 extends Container {
       /**
        * Return whether this slot's stack can be taken from this slot.
        */
+      @Override
       public boolean canTakeStack(PlayerEntity playerIn) {
         return (playerIn.abilities.isCreativeMode || playerIn.experienceLevel >= RepairContainerv2.this.maximumCost.get()) && RepairContainerv2.this.maximumCost.get() > 0 && this.getHasStack();
       }
 
+      @Override
       public ItemStack onTake(PlayerEntity thePlayer, ItemStack stack) {
         if (!thePlayer.abilities.isCreativeMode) {
           thePlayer.addExperienceLevel(-RepairContainerv2.this.maximumCost.get());
         }
 
-        float breakChance = net.minecraftforge.common.ForgeHooks.onAnvilRepair(thePlayer, stack, tileEntity.handler.getStackInSlot(0), tileEntity.handler.getStackInSlot(1));
+        double breakChance = net.minecraftforge.common.ForgeHooks.onAnvilRepair(thePlayer, stack, tileEntity.handler.getStackInSlot(0), tileEntity.handler.getStackInSlot(1)) * (damage_chance.get() / .12);
+
+        if (!damageable.get()) breakChance = 0;
 
         tileEntity.handler.setStackInSlot(0, ItemStack.EMPTY);
         if (RepairContainerv2.this.materialCost > 0) {
@@ -135,12 +140,10 @@ public class RepairContainerv2 extends Container {
   /**
    * Callback for when the crafting matrix is changed.
    */
+  @Override
   public void onCraftMatrixChanged(IInventory inventoryIn) {
     super.onCraftMatrixChanged(inventoryIn);
-  //  if (inventoryIn == this.tileEntity.handler) {
       this.updateRepairOutput();
-   // }
-
   }
 
   /**
@@ -212,7 +215,7 @@ public class RepairContainerv2 extends Container {
 
           for (Enchantment enchantment1 : map1.keySet()) {
             if (enchantment1 != null) {
-              int i2 = map.containsKey(enchantment1) ? map.get(enchantment1) : 0;
+              int i2 = map.getOrDefault(enchantment1, 0);
               int j2 = map1.get(enchantment1);
               j2 = i2 == j2 ? j2 + 1 : Math.max(j2, i2);
               boolean flag1 = enchantment1.canApply(itemstack);
@@ -256,8 +259,9 @@ public class RepairContainerv2 extends Container {
                 }
 
                 i += k3 * j2;
+                //can't anvil stacked items?
                 if (itemstack.getCount() > 1) {
-                  i = Configs.ServerConfig.repair_cost_cap.get();
+                  i = repair_cost_cap.get();
                 }
               }
             }
@@ -289,11 +293,13 @@ public class RepairContainerv2 extends Container {
         stack = ItemStack.EMPTY;
       }
 
-      if (k == i && k > 0 && this.maximumCost.get() >= Configs.ServerConfig.repair_cost_cap.get()) {
-        this.maximumCost.set(Configs.ServerConfig.repair_cost_cap.get() - 1);
+      //renaming only?
+      if (k == i && k > 0 && (this.maximumCost.get() >= repair_cost_cap.get() || cheap_renaming.get())) {
+        this.maximumCost.set(cheap_renaming.get() ? 1: repair_cost_cap.get() - 1);
+        System.out.println();
       }
 
-      if (this.maximumCost.get() >= Configs.ServerConfig.repair_cost_cap.get() && !this.player.abilities.isCreativeMode) {
+      if (this.maximumCost.get() >= repair_cost_cap.get() && !this.player.abilities.isCreativeMode) {
         stack = ItemStack.EMPTY;
       }
 
@@ -307,7 +313,7 @@ public class RepairContainerv2 extends Container {
           k2 = func_216977_d(k2);
         }
 
-        if (Configs.ServerConfig.prior_work_penalty.get())
+        if (prior_work_penalty.get())
         stack.setRepairCost(k2);
         EnchantmentHelper.setEnchantments(map, stack);
       }
@@ -318,7 +324,7 @@ public class RepairContainerv2 extends Container {
   }
 
   public static int getRepairCost(ItemStack stack){
-    return Configs.ServerConfig.prior_work_penalty.get() ? stack.getRepairCost() : 0;
+    return prior_work_penalty.get() ? stack.getRepairCost() : 0;
   }
 
   public static int func_216977_d(int p_216977_0_) {
@@ -328,13 +334,14 @@ public class RepairContainerv2 extends Container {
   /**
    * Called when the container is closed.
    */
+  @Override
   public void onContainerClosed(PlayerEntity playerIn) {
-    tileEntity.savedName = this.repairedItemName;
   }
 
   /**
    * Determines whether supplied player can use this container
    */
+  @Override
   public boolean canInteractWith(PlayerEntity playerIn) {
     return  field_216980_g.getBlockState(pos)
             .isIn(BlockTags.ANVIL) && playerIn.getDistanceSq(pos.getX() + 0.5D,
@@ -345,6 +352,7 @@ public class RepairContainerv2 extends Container {
    * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player
    * inventory and the other inventory(s).
    */
+  @Override
   public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
     ItemStack itemstack = ItemStack.EMPTY;
     Slot slot = this.inventorySlots.get(index);
@@ -389,7 +397,7 @@ public class RepairContainerv2 extends Container {
     if (this.getSlot(2).getHasStack()) {
       ItemStack itemstack = this.getSlot(2).getStack();
       if (StringUtils.isBlank(newName)) {
-        itemstack.setDisplayName(new StringTextComponent(this.tileEntity.savedName));
+        itemstack.clearCustomName();
       } else {
         itemstack.setDisplayName(new StringTextComponent(this.repairedItemName));
       }
@@ -397,7 +405,6 @@ public class RepairContainerv2 extends Container {
     this.updateRepairOutput();
   }
 
-  @OnlyIn(Dist.CLIENT)
   public int func_216976_f() {
     return this.maximumCost.get();
   }

@@ -2,7 +2,7 @@ package com.tfar.anviltweaks;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.tfar.anviltweaks.network.Message;
-import com.tfar.anviltweaks.network.PacketAnvilRename;
+import com.tfar.anviltweaks.network.CPacketAnvilRename;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -42,12 +42,12 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     this.nameField.func_212954_a(this::func_214075_a);
     this.children.add(this.nameField);
     this.container.addListener(this);
-    this.func_212928_a(this.nameField);
+    this.setFocused(this.nameField);
   }
 
-  public void resize(Minecraft p_resize_1_, int p_resize_2_, int p_resize_3_) {
+  public void resize(Minecraft minecraft, int p_resize_2_, int p_resize_3_) {
     String lvt_4_1_ = this.nameField.getText();
-    this.init(p_resize_1_, p_resize_2_, p_resize_3_);
+    this.init(minecraft, p_resize_2_, p_resize_3_);
     this.nameField.setText(lvt_4_1_);
   }
 
@@ -65,34 +65,30 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     return this.nameField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) || this.nameField.func_212955_f() || super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
   }
 
-  protected void drawGuiContainerForegroundLayer(int p_146979_1_, int p_146979_2_) {
+  protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
     GlStateManager.disableLighting();
     GlStateManager.disableBlend();
 
     this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 0x404040);
-    int lvt_3_1_ = this.container.func_216976_f();
-    if (!container.repairedItemName.equals(this.nameField.getText()) && !nameField.getText().isEmpty()){
-      this.container.updateItemName(this.nameField.getText());
-      Message.INSTANCE.sendToServer(new PacketAnvilRename(this.nameField.getText()));
-
-    }
-    if (lvt_3_1_ > 0) {
-      int lvt_4_1_ = 8453920;
-      boolean lvt_5_1_ = true;
-      String lvt_6_1_ = I18n.format("container.repair.cost", lvt_3_1_);
-      if (lvt_3_1_ >= Configs.ServerConfig.repair_cost_cap.get() && !this.minecraft.player.abilities.isCreativeMode) {
-        lvt_6_1_ = I18n.format("container.repair.expensive");
-        lvt_4_1_ = 16736352;
+    int levelCost = this.container.func_216976_f();
+    if (levelCost > 0) {
+      int fontColor = 0x80ff20;
+      boolean hasOutput = true;
+      String anvilText = I18n.format("container.repair.cost", levelCost);
+      //tell the client this repair is too expensive to be performed
+      if (levelCost >= Configs.ServerConfig.repair_cost_cap.get() && !this.minecraft.player.abilities.isCreativeMode) {
+        anvilText = I18n.format("container.repair.expensive");
+        fontColor = 0xff6060;
       } else if (!this.container.getSlot(2).getHasStack()) {
-        lvt_5_1_ = false;
+        hasOutput = false;
       } else if (!this.container.getSlot(2).canTakeStack(this.playerInventory.player)) {
-        lvt_4_1_ = 16736352;
+        fontColor = 0xff6060;
       }
 
-      if (lvt_5_1_) {
-        int lvt_7_1_ = this.xSize - 8 - this.font.getStringWidth(lvt_6_1_) - 2;
+      if (hasOutput) {
+        int lvt_7_1_ = this.xSize - 8 - this.font.getStringWidth(anvilText) - 2;
         fill(lvt_7_1_ - 2, 67, this.xSize - 8, 79, 0x4f000000);
-        this.font.drawStringWithShadow(lvt_6_1_, (float)lvt_7_1_, 69.0F, lvt_4_1_);
+        this.font.drawStringWithShadow(anvilText, (float)lvt_7_1_, 69.0F, fontColor);
       }
     }
 
@@ -108,7 +104,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       }
 
       this.container.updateItemName(name);
-      Message.INSTANCE.sendToServer(new PacketAnvilRename(name));
+      Message.INSTANCE.sendToServer(new CPacketAnvilRename(name));
     }
   }
 
@@ -140,11 +136,8 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
 
   public void sendSlotContents(Container p_71111_1_, int p_71111_2_, ItemStack toRename) {
     if (p_71111_2_ == 0) {
-      String s = toRename.isEmpty() ? "" : container.tileEntity.savedName != null && !container.tileEntity.savedName.isEmpty() ? container.tileEntity.savedName : toRename.getDisplayName().getString();
-      this.nameField.setText(s);
+      this.nameField.setText(toRename.isEmpty() ? "" : toRename.getDisplayName().getString());
       this.nameField.setEnabled(!toRename.isEmpty());
-
-      this.container.updateItemName(s);
     }
   }
 

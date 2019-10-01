@@ -1,11 +1,10 @@
 package com.tfar.anviltweaks;
 
-import com.tfar.anviltweaks.util.InventoryHelper;
 import net.minecraft.block.AnvilBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.FallingBlockEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -20,6 +19,8 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import static net.minecraft.tags.BlockTags.ANVIL;
 
@@ -52,16 +53,6 @@ public class AnvilBlockv2 extends AnvilBlock {
     return true;
   }
 
-  @Nullable
-  public static BlockState damage(BlockState p_196433_0_) {
-    Block lvt_1_1_ = p_196433_0_.getBlock();
-    if (lvt_1_1_ == AnvilTweaks.Anvils.anvil) {
-      return AnvilTweaks.Anvils.chipped_anvil.getDefaultState().with(FACING, p_196433_0_.get(FACING));
-    } else {
-      return lvt_1_1_ == AnvilTweaks.Anvils.chipped_anvil ? AnvilTweaks.Anvils.damaged_anvil.getDefaultState().with(FACING, p_196433_0_.get(FACING)) : null;
-    }
-  }
-
   protected void onStartFalling(FallingBlockEntity p_149829_1_) {
     super.onStartFalling(p_149829_1_);
 
@@ -79,13 +70,25 @@ public class AnvilBlockv2 extends AnvilBlock {
     }
   }
 
-  public static void dropItems(AnvilTile barrel, World world, BlockPos pos) {
+  public static void dropItems(AnvilTile anvil, World world, BlockPos pos) {
+    IntStream.range(0, anvil.handler.getSlots()).mapToObj(i -> anvil.handler.getStackInSlot(i)).filter(stack -> !stack.isEmpty()).forEach(stack -> spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack));
+  }
 
-    for (int i = 0; i < barrel.handler.getSlots(); ++i) {
-      ItemStack stack = barrel.handler.getStackInSlot(i);
-      if (!stack.isEmpty()) {
-        InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack);
-      }
+  private static final Random RANDOM = new Random();
+
+  public static void spawnItemStack(World worldIn, double x, double y, double z, ItemStack stack) {
+    double d0 = EntityType.ITEM.getWidth();
+    double d1 = 1.0D - d0;
+    double d2 = d0 / 2.0D;
+    double d3 = Math.floor(x) + RANDOM.nextDouble() * d1 + d2;
+    double d4 = Math.floor(y) + RANDOM.nextDouble() * d1;
+    double d5 = Math.floor(z) + RANDOM.nextDouble() * d1 + d2;
+
+    while(!stack.isEmpty()) {
+      ItemEntity itementity = new ItemEntity(worldIn, d3, d4, d5, stack.split(RANDOM.nextInt(21) + 10));
+      float f = 0.05F;
+      itementity.setMotion(RANDOM.nextGaussian() * f, RANDOM.nextGaussian() * f + 0.2, RANDOM.nextGaussian() * f);
+      worldIn.addEntity(itementity);
     }
   }
 
