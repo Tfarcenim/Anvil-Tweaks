@@ -405,11 +405,11 @@ public class RepairContainerv2 extends Container {
     this.updateRepairOutput();
   }
 
-  public int func_216976_f() {
+  public int getMaxCost() {
     return this.maximumCost.get();
   }
 
-  /** does nothing*/
+  /** unused*/
   public void setMaximumCost(int value) {
     this.maximumCost.set(value);
   }

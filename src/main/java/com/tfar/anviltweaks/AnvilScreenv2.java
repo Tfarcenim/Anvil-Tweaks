@@ -39,7 +39,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     this.nameField.setDisabledTextColour(-1);
     this.nameField.setEnableBackgroundDrawing(false);
     this.nameField.setMaxStringLength(35);
-    this.nameField.func_212954_a(this::func_214075_a);
+    this.nameField.setResponder(this::func_214075_a);
     this.children.add(this.nameField);
     this.container.addListener(this);
     this.setFocused(this.nameField);
@@ -70,7 +70,7 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     GlStateManager.disableBlend();
 
     this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 0x404040);
-    int levelCost = this.container.func_216976_f();
+    int levelCost = this.container.getMaxCost();
     if (levelCost > 0) {
       int fontColor = 0x80ff20;
       boolean hasOutput = true;
