@@ -1,6 +1,7 @@
 package com.tfar.anviltweaks;
 
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -11,7 +12,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class Client {
   @SubscribeEvent
   public static void doClientStuff(final FMLClientSetupEvent event) {
-    ScreenManager.registerFactory(AnvilTweaks.Stuff.anvil_container_v2, AnvilScreenv2::new);
-    ClientRegistry.bindTileEntitySpecialRenderer(AnvilTile.class, new AnvilTileSpecialRenderer());
+    ScreenManager.registerFactory(AnvilTweaks.Stuff.anvil_container, AnvilScreenv2::new);
+    ClientRegistry.bindTileEntityRenderer(AnvilTweaks.Stuff.anvil_tile, new AnvilTileRenderer(TileEntityRendererDispatcher.instance));
   }
 }

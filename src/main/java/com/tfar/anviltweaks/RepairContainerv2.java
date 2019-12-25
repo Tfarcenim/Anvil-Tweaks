@@ -42,7 +42,7 @@ public class RepairContainerv2 extends Container {
 
   public RepairContainerv2(int windowId, World world, BlockPos readBlockPos, PlayerInventory inv, PlayerEntity player) {
 
-    super(AnvilTweaks.Stuff.anvil_container_v2, windowId);
+    super(AnvilTweaks.Stuff.anvil_container, windowId);
     this.field_216980_g = world;
     this.player = player;
     this.pos = readBlockPos;

@@ -1,8 +1,8 @@
 package com.tfar.anviltweaks;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.tfar.anviltweaks.network.C2SPacketAnvilRename;
 import com.tfar.anviltweaks.network.Message;
-import com.tfar.anviltweaks.network.CPacketAnvilRename;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -15,10 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements IContainerListener {
   private static final ResourceLocation ANVIL_RESOURCE = new ResourceLocation("textures/gui/container/anvil.png");
   private TextFieldWidget nameField;
@@ -30,9 +27,9 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
   protected void init() {
     super.init();
     this.minecraft.keyboardListener.enableRepeatEvents(true);
-    int lvt_1_1_ = (this.width - this.xSize) / 2;
-    int lvt_2_1_ = (this.height - this.ySize) / 2;
-    this.nameField = new TextFieldWidget(this.font, lvt_1_1_ + 62, lvt_2_1_ + 24, 103, 12, I18n.format("container.repair"));
+    int i = (this.width - this.xSize) / 2;
+    int j = (this.height - this.ySize) / 2;
+    this.nameField = new TextFieldWidget(this.font, i + 62, j + 24, 103, 12, I18n.format("container.repair"));
     this.nameField.setCanLoseFocus(false);
     this.nameField.changeFocus(true);
     this.nameField.setTextColor(-1);
@@ -42,13 +39,13 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
     this.nameField.setResponder(this::func_214075_a);
     this.children.add(this.nameField);
     this.container.addListener(this);
-    this.setFocused(this.nameField);
+    this.setFocusedDefault(this.nameField);
   }
 
-  public void resize(Minecraft minecraft, int p_resize_2_, int p_resize_3_) {
-    String lvt_4_1_ = this.nameField.getText();
-    this.init(minecraft, p_resize_2_, p_resize_3_);
-    this.nameField.setText(lvt_4_1_);
+  public void resize(Minecraft p_resize_1_, int p_resize_2_, int p_resize_3_) {
+    String s = this.nameField.getText();
+    this.init(p_resize_1_, p_resize_2_, p_resize_3_);
+    this.nameField.setText(s);
   }
 
   public void removed() {
@@ -62,37 +59,37 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       this.minecraft.player.closeScreen();
     }
 
-    return this.nameField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) || this.nameField.func_212955_f() || super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+    return !this.nameField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) && !this.nameField.func_212955_f() ? super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) : true;
   }
 
+  /**
+   * Draw the foreground layer for the GuiContainer (everything in front of the items)
+   */
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-    GlStateManager.disableLighting();
-    GlStateManager.disableBlend();
-
-    this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 0x404040);
-    int levelCost = this.container.getMaxCost();
-    if (levelCost > 0) {
-      int fontColor = 0x80ff20;
-      boolean hasOutput = true;
-      String anvilText = I18n.format("container.repair.cost", levelCost);
-      //tell the client this repair is too expensive to be performed
-      if (levelCost >= Configs.ServerConfig.repair_cost_cap.get() && !this.minecraft.player.abilities.isCreativeMode) {
-        anvilText = I18n.format("container.repair.expensive");
-        fontColor = 0xff6060;
+    RenderSystem.disableBlend();
+    this.font.drawString(this.title.getFormattedText(), 60.0F, 6.0F, 4210752);
+    int i = this.container.getMaxCost();
+    if (i > 0) {
+      int j = 8453920;
+      boolean flag = true;
+      String s = I18n.format("container.repair.cost", i);
+      if (i >= Configs.ServerConfig.repair_cost_cap.get() && !this.minecraft.player.abilities.isCreativeMode) {
+        s = I18n.format("container.repair.expensive");
+        j = 16736352;
       } else if (!this.container.getSlot(2).getHasStack()) {
-        hasOutput = false;
+        flag = false;
       } else if (!this.container.getSlot(2).canTakeStack(this.playerInventory.player)) {
-        fontColor = 0xff6060;
+        j = 16736352;
       }
 
-      if (hasOutput) {
-        int lvt_7_1_ = this.xSize - 8 - this.font.getStringWidth(anvilText) - 2;
-        fill(lvt_7_1_ - 2, 67, this.xSize - 8, 79, 0x4f000000);
-        this.font.drawStringWithShadow(anvilText, (float)lvt_7_1_, 69.0F, fontColor);
+      if (flag) {
+        int k = this.xSize - 8 - this.font.getStringWidth(s) - 2;
+        int l = 69;
+        fill(k - 2, 67, this.xSize - 8, 79, 1325400064);
+        this.font.drawStringWithShadow(s, (float)k, 69.0F, j);
       }
     }
 
-    GlStateManager.enableLighting();
   }
 
   private void func_214075_a(String newName) {
@@ -104,43 +101,58 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       }
 
       this.container.updateItemName(name);
-      Message.INSTANCE.sendToServer(new CPacketAnvilRename(name));
+      Message.INSTANCE.sendToServer(new C2SPacketAnvilRename(name));
     }
   }
 
   public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
     this.renderBackground();
     super.render(p_render_1_, p_render_2_, p_render_3_);
-    this.renderHoveredToolTip(p_render_1_, p_render_2_);
-    GlStateManager.disableLighting();
-    GlStateManager.disableBlend();
+    RenderSystem.disableBlend();
     this.nameField.render(p_render_1_, p_render_2_, p_render_3_);
+    this.renderHoveredToolTip(p_render_1_, p_render_2_);
   }
 
-  protected void drawGuiContainerBackgroundLayer(float p_146976_1_, int p_146976_2_, int p_146976_3_) {
-    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+  /**
+   * Draws the background layer of this container (behind the items).
+   */
+  protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     this.minecraft.getTextureManager().bindTexture(ANVIL_RESOURCE);
-    int lvt_4_1_ = (this.width - this.xSize) / 2;
-    int lvt_5_1_ = (this.height - this.ySize) / 2;
-    this.blit(lvt_4_1_, lvt_5_1_, 0, 0, this.xSize, this.ySize);
-    this.blit(lvt_4_1_ + 59, lvt_5_1_ + 20, 0, this.ySize + (this.container.getSlot(0).getHasStack() ? 0 : 16), 110, 16);
+    int i = (this.width - this.xSize) / 2;
+    int j = (this.height - this.ySize) / 2;
+    this.blit(i, j, 0, 0, this.xSize, this.ySize);
+    this.blit(i + 59, j + 20, 0, this.ySize + (this.container.getSlot(0).getHasStack() ? 0 : 16), 110, 16);
     if ((this.container.getSlot(0).getHasStack() || this.container.getSlot(1).getHasStack()) && !this.container.getSlot(2).getHasStack()) {
-      this.blit(lvt_4_1_ + 99, lvt_5_1_ + 45, this.xSize, 0, 28, 21);
+      this.blit(i + 99, j + 45, this.xSize, 0, 28, 21);
     }
 
   }
 
-  public void sendAllContents(Container p_71110_1_, NonNullList<ItemStack> p_71110_2_) {
-    this.sendSlotContents(p_71110_1_, 0, p_71110_1_.getSlot(0).getStack());
+  /**
+   * update the crafting window inventory with the items in the list
+   */
+  public void sendAllContents(Container containerToSend, NonNullList<ItemStack> itemsList) {
+    this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).getStack());
   }
 
-  public void sendSlotContents(Container p_71111_1_, int p_71111_2_, ItemStack toRename) {
-    if (p_71111_2_ == 0) {
-      this.nameField.setText(toRename.isEmpty() ? "" : toRename.getDisplayName().getString());
-      this.nameField.setEnabled(!toRename.isEmpty());
+  /**
+   * Sends the contents of an inventory slot to the client-side Container. This doesn't have to match the actual
+   * contents of that slot.
+   */
+  public void sendSlotContents(Container containerToSend, int slotInd, ItemStack stack) {
+    if (slotInd == 0) {
+      this.nameField.setText(stack.isEmpty() ? "" : stack.getDisplayName().getString());
+      this.nameField.setEnabled(!stack.isEmpty());
     }
+
   }
 
-  public void sendWindowProperty(Container p_71112_1_, int p_71112_2_, int p_71112_3_) {
+  /**
+   * Sends two ints to the client-side Container. Used for furnace burning time, smelting progress, brewing progress,
+   * and enchanting level. Normally the first int identifies which variable to update, and the second contains the new
+   * value. Both are truncated to shorts in non-local SMP.
+   */
+  public void sendWindowProperty(Container containerIn, int varToUpdate, int newValue) {
   }
 }

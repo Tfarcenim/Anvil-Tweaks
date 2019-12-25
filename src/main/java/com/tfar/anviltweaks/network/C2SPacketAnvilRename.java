@@ -7,18 +7,18 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class CPacketAnvilRename {
+public class C2SPacketAnvilRename {
 
   private String name;
   private int length;
 
-  public CPacketAnvilRename() {}
+  public C2SPacketAnvilRename() {}
 
-  public CPacketAnvilRename(String newName) {
+  public C2SPacketAnvilRename(String newName) {
     this.name = newName;
   }
 
- public CPacketAnvilRename(PacketBuffer buf) {
+ public C2SPacketAnvilRename(PacketBuffer buf) {
     length = buf.readInt();
    name = buf.readString(length);
   }
