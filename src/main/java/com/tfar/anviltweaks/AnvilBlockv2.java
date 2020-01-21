@@ -41,9 +41,9 @@ public class AnvilBlockv2 extends AnvilBlock {
   @Override
   public ActionResultType func_225533_a_(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
     if (!world.isRemote) {
-      TileEntity tileEntity = world.getTileEntity(pos);
-      if (tileEntity instanceof INamedContainerProvider) {
-        NetworkHooks.openGui((ServerPlayerEntity) player, (INamedContainerProvider) tileEntity, tileEntity.getPos());
+      INamedContainerProvider menuProvider = getContainer(state, world, pos);
+      if (menuProvider != null) {
+        NetworkHooks.openGui((ServerPlayerEntity) player, menuProvider, pos);
       }
     }
     return ActionResultType.SUCCESS;
