@@ -51,7 +51,7 @@ public class AnvilBlockv2 extends AnvilBlock {
 
   @Override
   public void onReplaced(BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
-    if (!state.getBlock().isIn(ANVIL)) {
+    if (!newState.getBlock().isIn(ANVIL)) {
       TileEntity tileentity = worldIn.getTileEntity(pos);
       if (tileentity instanceof AnvilTile) {
         dropItems((AnvilTile) tileentity,worldIn, pos);

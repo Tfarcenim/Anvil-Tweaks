@@ -57,6 +57,15 @@ public class AnvilTweaks
     }
 
     @SubscribeEvent
+    public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
+      if (ModList.get().isLoaded("apotheosis"))return;
+      Item.Properties anvil = new Item.Properties().group(ItemGroup.DECORATIONS);
+      register(new AnvilBlockItem(Blocks.ANVIL,anvil),Blocks.ANVIL.getRegistryName(),event.getRegistry());
+      register(new AnvilBlockItem(Blocks.CHIPPED_ANVIL,anvil),Blocks.CHIPPED_ANVIL.getRegistryName(),event.getRegistry());
+      register(new AnvilBlockItem(Blocks.DAMAGED_ANVIL,anvil),Blocks.DAMAGED_ANVIL.getRegistryName(),event.getRegistry());
+    }
+
+    @SubscribeEvent
     public static void registerTiles(final RegistryEvent.Register<TileEntityType<?>> event) {
       register(TileEntityType.Builder.create(() -> new AnvilTile(Stuff.anvil_tile), Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL).build(null),"anvil_tile",event.getRegistry());
     }
@@ -69,7 +78,6 @@ public class AnvilTweaks
     private static <T extends IForgeRegistryEntry<T>> void register(T obj, String modid, String name, IForgeRegistry<T> registry) {
       register(obj,new ResourceLocation(modid, name),registry);
     }
-
 
     private static <T extends IForgeRegistryEntry<T>> void register(T obj, String name, IForgeRegistry<T> registry) {
       register(obj,MODID,name,registry);

@@ -36,6 +36,6 @@ Anvils keep their items and other useful tweaks
 [[dependencies.anviltweaks]]
     modId="forge"
     mandatory=true
-    versionRange="[28.0.41,)"
+    versionRange="[30.0.17,)"
     ordering="NONE"
     side="BOTH"

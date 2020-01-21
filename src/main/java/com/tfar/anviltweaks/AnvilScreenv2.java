@@ -145,7 +145,6 @@ public class AnvilScreenv2 extends ContainerScreen<RepairContainerv2> implements
       this.nameField.setText(stack.isEmpty() ? "" : stack.getDisplayName().getString());
       this.nameField.setEnabled(!stack.isEmpty());
     }
-
   }
 
   /**
