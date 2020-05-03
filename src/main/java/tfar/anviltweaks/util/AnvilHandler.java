@@ -1,4 +1,4 @@
-package com.tfar.anviltweaks.util;
+package tfar.anviltweaks.util;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;

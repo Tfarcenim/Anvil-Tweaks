@@ -1,4 +1,4 @@
-package com.tfar.anviltweaks;
+package tfar.anviltweaks;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -6,11 +6,11 @@ import org.apache.commons.lang3.tuple.Pair;
 public class Configs {
 
   public static final ServerConfig SERVER;
-  public static final ForgeConfigSpec COMMON_SPEC;
+  public static final ForgeConfigSpec SERVER_SPEC;
 
   static {
     final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
-    COMMON_SPEC = specPair.getRight();
+    SERVER_SPEC = specPair.getRight();
     SERVER = specPair.getLeft();
   }
 
@@ -21,6 +21,7 @@ public class Configs {
     public static ForgeConfigSpec.BooleanValue damageable;
     public static ForgeConfigSpec.DoubleValue damage_chance;
     public static ForgeConfigSpec.BooleanValue cheap_renaming;
+    public static ForgeConfigSpec.DoubleValue prior_work_penalty_scale;
 
     ServerConfig(ForgeConfigSpec.Builder builder) {
 
@@ -33,6 +34,10 @@ public class Configs {
               .comment("Prior Work Penalty")
               .translation("text.anviltweaks.config.prior_work_penalty")
               .define("prior_work_penalty",true);
+      prior_work_penalty_scale = builder
+              .comment("Prior Work Penalty Scale")
+              .translation("text.anviltweaks.config.prior_work_penalty_scale")
+              .defineInRange("prior_work_penalty_scale",2,1,Double.MAX_VALUE);
       damageable = builder
               .comment("Does anvil take damage")
               .translation("text.anviltweaks.config.damageable")

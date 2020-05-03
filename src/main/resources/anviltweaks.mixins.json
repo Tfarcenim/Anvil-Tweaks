@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "tfar.anviltweaks.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "anviltweaks.refmap.json",
+  "mixins": [
+    "AnvilBlockMixin",
+    "AnvilScreenMixin",
+    "RepairContainerMixin",
+    "ForgeHooksMixin",
+    "BlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}
