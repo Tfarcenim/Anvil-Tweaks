@@ -1,5 +1,6 @@
 package tfar.anviltweaks.mixin;
 
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntity;
@@ -12,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tfar.anviltweaks.AnvilTile;
 import tfar.anviltweaks.Hooks;
 
-@Mixin(Block.class)
-public class BlockMixin {
+@Mixin(AbstractBlock.class)
+public class AbstractBlockMixin {
 
 	@Inject(method = "onReplaced",at = @At("HEAD"))
 	private void dropItems(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving, CallbackInfo ci){

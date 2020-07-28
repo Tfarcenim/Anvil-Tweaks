@@ -4,11 +4,14 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "anviltweaks.refmap.json",
   "mixins": [
+    "AbstractBlockMixin",
+    "AbstractRepairContainerAccessor",
+    "AbstractRepairContainerMixin",
     "AnvilBlockMixin",
     "AnvilScreenMixin",
-    "RepairContainerMixin",
+    "ContainerMixin",
     "ForgeHooksMixin",
-    "BlockMixin"
+    "RepairContainerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

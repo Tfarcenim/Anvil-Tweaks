@@ -34,11 +34,6 @@ public class AnvilTweaks
       register(TileEntityType.Builder.create(() -> new AnvilTile(Stuff.anvil_tile), Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL).build(null),"anvil_tile",event.getRegistry());
     }
 
-    /*@SubscribeEvent
-    public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
-      register(IForgeContainerType.create((windowId, inv, data) -> new RepairContainerv2(windowId, inv.player.world, data.readBlockPos(), inv, inv.player)),"anvil_container",event.getRegistry());
-    }*/
-
     private static <T extends IForgeRegistryEntry<T>> void register(T obj, String modid, String name, IForgeRegistry<T> registry) {
       register(obj,new ResourceLocation(modid, name),registry);
     }

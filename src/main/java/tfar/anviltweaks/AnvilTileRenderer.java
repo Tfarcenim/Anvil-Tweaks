@@ -4,13 +4,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.AnvilBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class AnvilTileRenderer extends TileEntityRenderer<AnvilTile> {
 
@@ -21,8 +21,7 @@ public class AnvilTileRenderer extends TileEntityRenderer<AnvilTile> {
 
   @Override
   public void render(AnvilTile tileEntity, float p_225616_2_, MatrixStack matrixStack, IRenderTypeBuffer iRenderTypeBuffer, int int_1, int int_2) {
-    if (!tileEntity.handler.getContents().isEmpty() && this.renderDispatcher.renderInfo != null
-						&& tileEntity.getDistanceSq(this.renderDispatcher.renderInfo.getProjectedView().x, this.renderDispatcher.renderInfo.getProjectedView().y, this.renderDispatcher.renderInfo.getProjectedView().z) < 64d) {
+    if (!tileEntity.handler.getContents().isEmpty() && this.renderDispatcher.renderInfo != null) {
       matrixStack.translate(0,1.0625, 0);
       drawItemStack(tileEntity,matrixStack,0,int_1,iRenderTypeBuffer);
       drawItemStack(tileEntity,matrixStack,1,int_1,iRenderTypeBuffer);
@@ -48,7 +47,7 @@ public class AnvilTileRenderer extends TileEntityRenderer<AnvilTile> {
 
       //func_227862_a = scale x,y,z
       matrixStack.scale(0.25F, 0.25F, 0.25F);
-      Minecraft.getInstance().getItemRenderer().renderItem(item, ItemCameraTransforms.TransformType.FIXED, int_1, OverlayTexture.DEFAULT_LIGHT, matrixStack, iRenderTypeBuffer);
+      Minecraft.getInstance().getItemRenderer().renderItem(item, ItemCameraTransforms.TransformType.FIXED, int_1, OverlayTexture.NO_OVERLAY, matrixStack, iRenderTypeBuffer);
       //popmatrix
       matrixStack.pop();
     }

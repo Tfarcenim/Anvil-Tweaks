@@ -3,6 +3,7 @@ package tfar.anviltweaks.mixin;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.AbstractRepairContainer;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.IWorldPosCallable;
@@ -15,28 +16,36 @@ import tfar.anviltweaks.Configs;
 import net.minecraft.inventory.container.RepairContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
+import tfar.anviltweaks.Hooks;
+import tfar.anviltweaks.RepairContainerDuck;
 
 import javax.annotation.Nullable;
 
 @Mixin(RepairContainer.class)
-abstract class RepairContainerMixin extends Container {
+abstract class RepairContainerMixin extends AbstractRepairContainer implements RepairContainerDuck {
 
-	@Shadow @Final private IInventory inputSlots;
-	@Shadow @Final private PlayerEntity player;
 	private AnvilTile anvilTile;
 
 	private boolean loading = false;
 
-	@Inject(method = "onCraftMatrixChanged",at = @At("HEAD"))
-	private void saveData(IInventory inventoryIn, CallbackInfo ci){
-		if (!this.player.world.isRemote && !loading)
-			anvilTile.save(inputSlots);//don't save contents until they're fully deserialized
+	public RepairContainerMixin(@Nullable ContainerType<?> p_i231587_1_, int p_i231587_2_, PlayerInventory p_i231587_3_, IWorldPosCallable p_i231587_4_) {
+		super(p_i231587_1_, p_i231587_2_, p_i231587_3_, p_i231587_4_);
 	}
 
 	//negate prior work penalty
 	@Inject(method = "getNewRepairCost",at = @At("HEAD"),cancellable = true)
 	private static void removePriorWorkPenalty(int oldRepairCost, CallbackInfoReturnable<Integer> cir){
 		if (!Configs.ServerConfig.prior_work_penalty.get())cir.setReturnValue(0);
+	}
+
+	@Override
+	public boolean isLoading() {
+		return loading;
+	}
+
+	@Override
+	public boolean isClient() {
+		return field_234645_f_.world.isRemote;
 	}
 
 	//change the rate at which prior work penalty scales
@@ -49,13 +58,18 @@ abstract class RepairContainerMixin extends Container {
 
 	//load blockentity data
 	@Inject(method = "<init>(ILnet/minecraft/entity/player/PlayerInventory;Lnet/minecraft/util/IWorldPosCallable;)V",at = @At("RETURN"))
-	private void addInventory(int id, PlayerInventory playerInventory, IWorldPosCallable p_i50102_3_, CallbackInfo ci){
-		p_i50102_3_.consume((world, pos) -> {
+	private void addInventory(int id, PlayerInventory playerInventory, IWorldPosCallable posCallable, CallbackInfo ci){
+		posCallable.consume((world, pos) -> {
 			anvilTile = (AnvilTile) world.getTileEntity(pos);
 			loading = true;
-			anvilTile.load(inputSlots);
+			anvilTile.load(field_234643_d_);
 			loading = false;
 		});
+	}
+
+	@Override
+	public AnvilTile getAnvilTile() {
+		return anvilTile;
 	}
 
 	//allow cheap renaming
@@ -71,13 +85,4 @@ abstract class RepairContainerMixin extends Container {
 		return Configs.ServerConfig.repair_cost_cap.get();
 	}
 
-	//don't drop items when gui is closed
-	@Inject(method = "onContainerClosed",at = @At("HEAD"),cancellable = true)
-	private void saveInv(PlayerEntity playerIn, CallbackInfo ci){
-		ci.cancel();
-	}
-
-	protected RepairContainerMixin(@Nullable ContainerType<?> type, int id) {
-		super(type, id);
-	}
 }

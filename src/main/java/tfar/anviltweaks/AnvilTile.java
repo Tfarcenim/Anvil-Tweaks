@@ -1,5 +1,6 @@
 package tfar.anviltweaks;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -43,10 +44,10 @@ public class AnvilTile extends TileEntity  {
   }
 
   @Override
-  public void read(CompoundNBT tag) {
+  public void read(BlockState state,CompoundNBT tag) {
     CompoundNBT invTag = tag.getCompound("inv");
     handler.deserializeNBT(invTag);
-    super.read(tag);
+    super.read(state,tag);
   }
 
   @Override
@@ -70,6 +71,6 @@ public class AnvilTile extends TileEntity  {
   @Override
   public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet)
   {
-    this.read(packet.getNbtCompound());
+    this.read(null,packet.getNbtCompound());
   }
 }
